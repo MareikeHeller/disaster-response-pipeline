@@ -2,13 +2,15 @@ import json
 import plotly
 import pandas as pd
 
+import nltk
 from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 from sklearn.externals import joblib
+from sklearn.base import BaseEstimator, TransformerMixin
 from sqlalchemy import create_engine
 
 
@@ -25,12 +27,30 @@ def tokenize(text):
 
     return clean_tokens
 
+class SentenceCountExtractor(BaseEstimator, TransformerMixin):
+    '''
+    This class builds a customized transformer based on whether a message contains one or multiple sentences.
+    The boolean information (False = one sentence, True = multiple sentences) is used as a feature in the ML model.
+    '''
+    def sentence_count(self, text):
+        sentence_list = nltk.sent_tokenize(text)
+        if len(sentence_list) > 1:
+            return True
+        return False
+
+    def fit(self, X, Y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.sentence_count)
+        return pd.DataFrame(X_tagged)
+
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('labeled_messages', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
