@@ -9,7 +9,6 @@ import pickle
 #nltk
 import nltk
 nltk.download(['punkt', 'wordnet'])
-#nltk.download('averaged_perceptron_tagger')
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 
