@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
 import re
+import pickle
 
 #nltk
 import nltk
@@ -175,7 +176,7 @@ def save_model(model, model_filepath):
     model - ML model consisting of transformers and a multi-output classifier
     model_filepath - Path to save model
     '''
-     pickle.dump(model, open(model_filepath, 'wb'))
+    pickle.dump(model, open(model_filepath, 'wb'))
 
 
 def main():
