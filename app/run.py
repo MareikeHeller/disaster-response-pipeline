@@ -9,6 +9,8 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
+from plotly.graph_objs import Scatter
+import plotly.graph_objs as go
 from sklearn.externals import joblib
 from sklearn.base import BaseEstimator, TransformerMixin
 from sqlalchemy import create_engine
@@ -58,33 +60,82 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/index')
 def index():
     
+    ### GRAPHS ###
+    # 1. Labeled Messages per Category
+    graph_one = []
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    category_counts = df.iloc[:,4:].sum().sort_values(ascending=False)
+    category_means = df.iloc[:,4:].mean().sort_values(ascending=False).apply(lambda x:'{:.0f}%'.format(x*100))
+    category_names = list(category_counts.index)
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
-    graphs = [
-        {
-            'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
-                )
-            ],
+    graph_one.append(
+        Bar(
+            x=category_names,
+            y=category_counts,
+            text=category_means,
+            textposition='outside',
+        )
+    )
+    
+    layout_one = dict(title='Labeled Messaged per Category',
+                      xaxis=dict(title='Category', tickangle=25),
+                      yaxis=dict(title='Count'),
+                     )
+    
+    #graph_one.update_xaxes(title_standoff=25)
+    
+    # 2. Labeled Messages per Category by Genre
+    graph_two = []
+    # extract data needed for visuals
+    # group by genre and count messages per category
+    category_counts_grouped = df.groupby('genre').sum()[category_names].reset_index()
+    # pivot all categories from columns to rows
+    category_counts_by_genre = pd.melt(category_counts_grouped, id_vars='genre',value_vars=category_names)
+    genrelist = category_counts_by_genre['genre'].unique().tolist()
+    
+    # create visuals
+    for genre in genrelist:
+        graph_two.append(
+            Scatter(
+                x=category_counts_by_genre[category_counts_by_genre['genre'] == genre]['variable'].tolist(),
+                y=category_counts_by_genre[category_counts_by_genre['genre'] == genre]['value'].tolist(),
+                mode='lines',
+                name=genre
+            )
+        )
 
-            'layout': {
-                'title': 'Distribution of Message Genres',
-                'yaxis': {
-                    'title': "Count"
-                },
-                'xaxis': {
-                    'title': "Genre"
-                }
-            }
-        }
-    ]
+    layout_two = dict(title='Labeled Messages per Category by Genre',
+                      xaxis=dict(title='Category', tickangle=25),
+                      yaxis=dict(title='Count'),
+                      )
+    
+    # 3. Distribution of Message Genres
+    graph_three = []
+    # extract data needed for visuals
+    genre_counts = df.groupby('genre').count()['message']
+    genre_names = list(genre_counts.index)  
+    category_counts = df.iloc[:,4:].sum().sort_values(ascending=False)
+    category_names = list(category_counts.index)
+    
+    # create visuals
+    graph_three.append(
+        Bar(
+            x=genre_names,
+            y=genre_counts
+        )
+    )
+    
+    layout_three = dict(title='Distribution of Message Genres',
+                      xaxis=dict(title='Genre'),
+                      yaxis=dict(title='Count')
+                     )
+        
+    # Append all charts to the figures list
+    graphs = []
+    graphs.append(dict(data=graph_one, layout=layout_one))
+    graphs.append(dict(data=graph_two, layout=layout_two))
+    graphs.append(dict(data=graph_three, layout=layout_three))
     
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
