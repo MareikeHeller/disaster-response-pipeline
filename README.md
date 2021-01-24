@@ -49,6 +49,7 @@ It includes a natural language processing pipeline using a
 ### Details
 A new message can be assigned to label categories based on the underlying classifier model by inserting it the input line.
 ![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/classify_message.PNG)
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/classification_result.PNG)
 
 The main page shows three visualizations (plotly) on the training dataset, including:
 - Labeled Messages per Category
@@ -56,6 +57,8 @@ The main page shows three visualizations (plotly) on the training dataset, inclu
 - Labeled Messages per Category by Genre
 	- *genres are direct, news & social*
 - Distribution of Message Genres
+
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/visualization_example.PNG)
 
 In case new data becomes available for model training in the future in order to improve the classification performance, the ETL & ML pipelines can be executed as described under [Instructions](#instructions). 
 
@@ -87,6 +90,7 @@ In case new data becomes available for model training in the future in order to 
 	- *loads data and builds the model using an ML pipeline*
     - *including GridSearch cross-validation and evaluation of the model*
     - *saves the resulting model as pickle file*
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/model_metrics.PNG)
 - classifier.pkl
 	- *final classifier model*
     
