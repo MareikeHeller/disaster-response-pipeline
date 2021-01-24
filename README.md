@@ -68,6 +68,7 @@ In case new data becomes available for model training in the future in order to 
     - *loads data from database and model from pickel file (different directories for local vs. web deployment are handled using try except statements)*
     - *note: from sklearn.externals import joblib was replaced by direct import joblib*
     - *creates plotly visualizations*
+    
 **data**
 - disaster_categories.csv
 	- *raw data on categories (used as labels)*
@@ -79,6 +80,7 @@ In case new data becomes available for model training in the future in order to 
     - *saves the resulting clean data in a database with one table*
 - DisasterResponse.db
 	- *final clean database with one table "labeled_messages"*
+    
 **models**
 - train_classifier.py
 	- *loads data and builds the model using an ML pipeline*
@@ -86,16 +88,20 @@ In case new data becomes available for model training in the future in order to 
     - *saves the resulting model as pickle file*
 - classifier.pkl
 	- *final classifier model*
+    
 **modules**
 - utils.py
 	- *contains function "tokenize" and class "SentenceCountExtractor"*
     - *tokenize: Transforms text messages (documents) into normalized & lemmatized tokens*
     - *SentenceCountExtractor: Customized transformer based on whether a message contains one or multiple sentences. Used as a boolean feature in the ML model.*
     - *was necessary to isolate from train_classifier.py & run.py for deployment with heroku*
+    
 **Procfile**
 - *\[heroku\] app deployment*
+
 **nltk.txt**
 - *\[heroku\] contains a list of nltk corpora to be downloaded for model to classify messages*
+
 **requirements.txt**
 -  *can be used to install the python environment*
 
