@@ -1,4 +1,4 @@
-# disaster-response-pipeline
+# Disaster Response Pipeline
 
 Find the web app: https://disaster-response-pipeline-mh.herokuapp.com/ 
 
@@ -59,7 +59,7 @@ The main page shows three visualizations (plotly) on the training dataset, inclu
 In case new data becomes available for model training in the future in order to improve the classification performance, the ETL & ML pipelines can be executed as described under [Instructions](#instructions). 
 
 ## File Descriptions
-1. app
+**app**
 - templates
 	- master.html & go.html
     	- *app HTML functions & design*
@@ -68,7 +68,7 @@ In case new data becomes available for model training in the future in order to 
     - *loads data from database and model from pickel file (different directories for local vs. web deployment are handled using try except statements)*
     - *note: from sklearn.externals import joblib was replaced by direct import joblib*
     - *creates plotly visualizations*
-2. data
+**data**
 - disaster_categories.csv
 	- *raw data on categories (used as labels)*
 - disaster_messages.csv
@@ -79,24 +79,24 @@ In case new data becomes available for model training in the future in order to 
     - *saves the resulting clean data in a database with one table*
 - DisasterResponse.db
 	- *final clean database with one table "labeled_messages"*
-3. models
+**models**
 - train_classifier.py
 	- *loads data and builds the model using an ML pipeline*
     - *including GridSearch cross-validation and evaluation of the model*
     - *saves the resulting model as pickle file*
 - classifier.pkl
 	- *final classifier model*
-4. modules
+**modules**
 - utils.py
 	- *contains function "tokenize" and class "SentenceCountExtractor"*
     - *tokenize: Transforms text messages (documents) into normalized & lemmatized tokens*
     - *SentenceCountExtractor: Customized transformer based on whether a message contains one or multiple sentences. Used as a boolean feature in the ML model.*
     - *was necessary to isolate from train_classifier.py & run.py for deployment with heroku*
-5. Procfile
+**Procfile**
 - *\[heroku\] app deployment*
-6. nltk.txt
+**nltk.txt**
 - *\[heroku\] contains a list of nltk corpora to be downloaded for model to classify messages*
-7. requirements.txt
+**requirements.txt**
 -  *can be used to install the python environment*
 
 ## Licensing, Authors, Acknowledgements
