@@ -48,6 +48,7 @@ It includes a natural language processing pipeline using a
 
 ### Details
 A new message can be assigned to label categories based on the underlying classifier model by inserting it the input line.
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/classify_message.PNG)
 
 The main page shows three visualizations (plotly) on the training dataset, including:
 - Labeled Messages per Category
