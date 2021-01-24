@@ -1,20 +1,22 @@
-#misc
+# misc
 import sys
+sys.path.append('../')
 import pandas as pd
-import numpy as np
+# import numpy as np
 from sqlalchemy import create_engine
-import re
+# import re
 import pickle
+from modules.utils import tokenize, SentenceCountExtractor
 
-#nltk
+# nltk
 import nltk
 nltk.download(['punkt', 'wordnet'])
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.stem import WordNetLemmatizer
+# from nltk.tokenize import word_tokenize, sent_tokenize
+# from nltk.stem import WordNetLemmatizer
 
-#scikit-learn
+# scikit-learn
 from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.base import BaseEstimator, TransformerMixin
+# from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
@@ -37,70 +39,13 @@ def load_data(database_filepath):
     '''
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table('labeled_messages', engine)
-    
+
     X = df['message']
     Y = df.drop(['id', 'message', 'original', 'genre'], axis=1)
-    
+
     category_names = Y.columns
-    
+
     return X, Y, category_names
-
-
-def tokenize(text):
-    '''
-    Transform text messages (documents) into normalized & lemmatized tokens.
-    Normalization steps are:
-    1. Lowercase
-    2. Replace URLs by placeholders
-    3. Replace punctuation
-    
-    Input arguments:
-    text - A single text message following a disaster
-    
-    Output:
-    lem_tokens - Normalized & lemmatized tokens
-    '''
-    # 1. normalize lowercase
-    text = text.lower()
-    
-    # 2. replace URLs by placeholder
-    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    detected_urls = re.findall(url_regex, text)
-    for url in detected_urls:
-        text = text.replace(url, 'urlplaceholder')
-        
-    # 3. normalize to digits and numbers only (replace by whitespace)
-    text = re.sub(r'[^a-zA-Z0-9]',' ',text)
-    
-    # word tokenize
-    tokens = word_tokenize(text)
-    
-    # lemmatize token by token
-    lemmatizer = WordNetLemmatizer()
-    lem_tokens = []
-    for i in tokens:
-        lem_tok = lemmatizer.lemmatize(i).strip()
-        lem_tokens.append(lem_tok)
-
-    return lem_tokens
-
-class SentenceCountExtractor(BaseEstimator, TransformerMixin):
-    '''
-    This class builds a customized transformer based on whether a message contains one or multiple sentences.
-    The boolean information (False = one sentence, True = multiple sentences) is used as a feature in the ML model.
-    '''
-    def sentence_count(self, text):
-        sentence_list = nltk.sent_tokenize(text)
-        if len(sentence_list) > 1:
-            return True
-        return False
-
-    def fit(self, X, Y=None):
-        return self
-
-    def transform(self, X):
-        X_tagged = pd.Series(X).apply(self.sentence_count)
-        return pd.DataFrame(X_tagged)
 
 
 def build_model():
@@ -122,23 +67,23 @@ def build_model():
             # customized transformer
             ('sentence_count', SentenceCountExtractor())
         ])),
-        
+
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
-    
+
     # define hyperparameters for tuning
     parameters = {
-    'features__transformer_weights': (
+        'features__transformer_weights': (
             {'text_pipeline': 1},
             {'text_pipeline': 0.75},
             {'text_pipeline': 0.5},
-                                     ),
-    'clf__estimator__max_features':['auto','sqrt','log2'],
+        ),
+        'clf__estimator__max_features': ['auto', 'sqrt', 'log2'],
     }
 
     # set up model
     model = GridSearchCV(pipeline, param_grid=parameters)
-    
+
     return model
 
 
@@ -155,13 +100,13 @@ def evaluate_model(model, X_test, Y_test, category_names):
     '''
     # predict on test data
     Y_pred = model.predict(X_test)
-    
+
     # report f1, precision, recall and accuracy score
     accuracy_list = []
     for col in range(len(category_names)):
         print(Y_test.columns[col], ':')
-        report = classification_report(Y_test.iloc[:,col], Y_pred[:,col])
-        accuracy = accuracy_score(Y_test.iloc[:,col], Y_pred[:,col])
+        report = classification_report(Y_test.iloc[:, col], Y_pred[:, col])
+        accuracy = accuracy_score(Y_test.iloc[:, col], Y_pred[:, col])
         accuracy_list.append(accuracy)
         print(report)
         print('accuracy: ' + str("%.2f" % accuracy) + '\n')
@@ -184,13 +129,13 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
@@ -200,9 +145,9 @@ def main():
         print('Trained model saved!')
 
     else:
-        print('Please provide the filepath of the disaster messages database '\
-              'as the first argument and the filepath of the pickle file to '\
-              'save the model to as the second argument. \n\nExample: python '\
+        print('Please provide the filepath of the disaster messages database ' \
+              'as the first argument and the filepath of the pickle file to ' \
+              'save the model to as the second argument. \n\nExample: python ' \
               'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
 
 
