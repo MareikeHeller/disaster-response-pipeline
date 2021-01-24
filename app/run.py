@@ -1,100 +1,51 @@
+import sys
+sys.path.append('../')
 import json
 import plotly
 import pandas as pd
-
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize, sent_tokenize
-
 from flask import Flask
-from flask import render_template, request, jsonify
+from flask import render_template, request
 from plotly.graph_objs import Bar
 from plotly.graph_objs import Scatter
-import plotly.graph_objs as go
-from sklearn.externals import joblib
-from sklearn.base import BaseEstimator, TransformerMixin
+# from sklearn.externals import joblib
+import joblib
 from sqlalchemy import create_engine
-
+from modules.utils import tokenize, SentenceCountExtractor
 
 app = Flask(__name__)
 
-def tokenize(text):
-    '''
-    Transform text messages (documents) into normalized & lemmatized tokens.
-    Normalization steps are:
-    1. Lowercase
-    2. Replace URLs by placeholders
-    3. Replace punctuation
-    
-    Input arguments:
-    text - A single text message following a disaster
-    
-    Output:
-    lem_tokens - Normalized & lemmatized tokens
-    '''
-    # 1. normalize lowercase
-    text = text.lower()
-    
-    # 2. replace URLs by placeholder
-    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    detected_urls = re.findall(url_regex, text)
-    for url in detected_urls:
-        text = text.replace(url, 'urlplaceholder')
-        
-    # 3. normalize to digits and numbers only (replace by whitespace)
-    text = re.sub(r'[^a-zA-Z0-9]',' ',text)
-    
-    # word tokenize
-    tokens = word_tokenize(text)
-    
-    # lemmatize token by token
-    lemmatizer = WordNetLemmatizer()
-    lem_tokens = []
-    for i in tokens:
-        lem_tok = lemmatizer.lemmatize(i).strip()
-        lem_tokens.append(lem_tok)
-
-    return lem_tokens
-
-class SentenceCountExtractor(BaseEstimator, TransformerMixin):
-    '''
-    This class builds a customized transformer based on whether a message contains one or multiple sentences.
-    The boolean information (False = one sentence, True = multiple sentences) is used as a feature in the ML model.
-    '''
-    def sentence_count(self, text):
-        sentence_list = nltk.sent_tokenize(text)
-        if len(sentence_list) > 1:
-            return True
-        return False
-
-    def fit(self, X, Y=None):
-        return self
-
-    def transform(self, X):
-        X_tagged = pd.Series(X).apply(self.sentence_count)
-        return pd.DataFrame(X_tagged)
-
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
-df = pd.read_sql_table('labeled_messages', engine)
+try:
+    # heroku
+    engine = create_engine('sqlite:///./data/DisasterResponse.db')
+    df = pd.read_sql_table('labeled_messages', engine)
+except:
+    # local
+    engine = create_engine('sqlite:///../data/DisasterResponse.db')
+    df = pd.read_sql_table('labeled_messages', engine)
 
 # load model
-model = joblib.load("../models/classifier.pkl")
+global model
+try:
+    # heroku
+    model = joblib.load("./models/classifier.pkl")
+except:
+    # local
+    model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
-    
     ### GRAPHS ###
     # 1. Labeled Messages per Category
     graph_one = []
     # extract data needed for visuals
-    category_counts = df.iloc[:,4:].sum().sort_values(ascending=False)
-    category_means = df.iloc[:,4:].mean().sort_values(ascending=False).apply(lambda x:'{:.0f}%'.format(x*100))
+    category_counts = df.iloc[:, 4:].sum().sort_values(ascending=False)
+    category_means = df.iloc[:, 4:].mean().sort_values(ascending=False).apply(lambda x: '{:.0f}%'.format(x * 100))
     category_names = list(category_counts.index)
-    
+
     # create visuals
     graph_one.append(
         Bar(
@@ -104,23 +55,21 @@ def index():
             textposition='outside',
         )
     )
-    
-    layout_one = dict(title='Labeled Messaged per Category',
+
+    layout_one = dict(title='Labeled Messages per Category',
                       xaxis=dict(title='Category', tickangle=25),
                       yaxis=dict(title='Count'),
-                     )
-    
-    #graph_one.update_xaxes(title_standoff=25)
-    
+                      )
+
     # 2. Labeled Messages per Category by Genre
     graph_two = []
     # extract data needed for visuals
     # group by genre and count messages per category
     category_counts_grouped = df.groupby('genre').sum()[category_names].reset_index()
     # pivot all categories from columns to rows
-    category_counts_by_genre = pd.melt(category_counts_grouped, id_vars='genre',value_vars=category_names)
+    category_counts_by_genre = pd.melt(category_counts_grouped, id_vars='genre', value_vars=category_names)
     genrelist = category_counts_by_genre['genre'].unique().tolist()
-    
+
     # create visuals
     for genre in genrelist:
         graph_two.append(
@@ -136,15 +85,15 @@ def index():
                       xaxis=dict(title='Category', tickangle=25),
                       yaxis=dict(title='Count'),
                       )
-    
+
     # 3. Distribution of Message Genres
     graph_three = []
     # extract data needed for visuals
     genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)  
-    category_counts = df.iloc[:,4:].sum().sort_values(ascending=False)
+    genre_names = list(genre_counts.index)
+    category_counts = df.iloc[:, 4:].sum().sort_values(ascending=False)
     category_names = list(category_counts.index)
-    
+
     # create visuals
     graph_three.append(
         Bar(
@@ -152,22 +101,22 @@ def index():
             y=genre_counts
         )
     )
-    
+
     layout_three = dict(title='Distribution of Message Genres',
-                      xaxis=dict(title='Genre'),
-                      yaxis=dict(title='Count')
-                     )
-        
+                        xaxis=dict(title='Genre'),
+                        yaxis=dict(title='Count')
+                        )
+
     # Append all charts to the figures list
     graphs = []
     graphs.append(dict(data=graph_one, layout=layout_one))
     graphs.append(dict(data=graph_two, layout=layout_two))
     graphs.append(dict(data=graph_three, layout=layout_three))
-    
+
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-    
+
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
 
@@ -176,7 +125,7 @@ def index():
 @app.route('/go')
 def go():
     # save user input in query
-    query = request.args.get('query', '') 
+    query = request.args.get('query', '')
 
     # use model to predict classification for query
     classification_labels = model.predict([query])[0]
