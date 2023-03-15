@@ -1,6 +1,8 @@
 # Disaster Response Pipeline
 
-Find the web app: https://disaster-response-pipeline-mh.herokuapp.com/ 
+Heroku free plan was discontinued. Web app to be migrated to another hosting platform.
+
+_Find the web app: https://disaster-response-pipeline-mh.herokuapp.com/_
 
 ## Table of Contents
 1. [Instructions](#instructions)
@@ -36,7 +38,10 @@ The environment can be installed using [requirements.txt](https://github.com/Mar
 
 ### Deployment
 The application is created using Flask and was deployed on Heroku. 
-You can access the app here: https://disaster-response-pipeline-mh.herokuapp.com/ 
+
+Heroku free plan was discontinued. Web app to be migrated to another hosting platform.
+
+_You can access the app here: https://disaster-response-pipeline-mh.herokuapp.com/_ 
 
 ## Objective
 This web app provides an interface for the automatic classification of disaster response messages into category labels.
