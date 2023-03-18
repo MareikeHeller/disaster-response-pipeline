@@ -23,8 +23,8 @@ pyrsistent==0.17.3
 python-dateutil==2.8.1
 pytz==2020.5
 requests==2.25.1
-scikit-learn==0.19.1
 scipy==1.2.1
+scikit-learn==0.19.1
 six==1.15.0
 SQLAlchemy==1.2.19
 threadpoolctl==2.1.0
