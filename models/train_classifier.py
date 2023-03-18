@@ -1,7 +1,9 @@
 # misc
 import sys
-sys.path.append('../')
+sys.path.append('./')
+import bz2file as bz2
 import pandas as pd
+import pickle
 # import numpy as np
 from sqlalchemy import create_engine
 # import re
@@ -78,7 +80,7 @@ def build_model():
             {'text_pipeline': 0.75},
             {'text_pipeline': 0.5},
         ),
-        'clf__estimator__max_features': ['auto', 'sqrt', 'log2'],
+        'clf__estimator__max_features': ['sqrt', 'log2'],
     }
 
     # set up model
@@ -114,13 +116,15 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 def save_model(model, model_filepath):
     '''
-    Save the ML model as a .pkl-file.
+    Save the ML model as a compressed .pkl-file.
     
     Input Arguments:
     model - ML model consisting of transformers and a multi-output classifier
     model_filepath - Path to save model
     '''
-    pickle.dump(model, open(model_filepath, 'wb'))
+    with bz2.BZ2File(model_filepath, 'w') as f:
+        pickle.dump(model, f)
+    #pickle.dump(model, open(model_filepath, 'wb'))
 
 
 def main():
@@ -148,7 +152,7 @@ def main():
         print('Please provide the filepath of the disaster messages database ' \
               'as the first argument and the filepath of the pickle file to ' \
               'save the model to as the second argument. \n\nExample: python ' \
-              'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
+              'models/train_classifier.py ./data/DisasterResponse.db models/classifier.pkl')
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import sys
-sys.path.append('../')
+sys.path.append('./')
+import bz2file as bz2
 import json
 import plotly
 import pandas as pd
@@ -7,32 +8,24 @@ from flask import Flask
 from flask import render_template, request
 from plotly.graph_objs import Bar
 from plotly.graph_objs import Scatter
-# from sklearn.externals import joblib
-import joblib
+import pickle
 from sqlalchemy import create_engine
 from modules.utils import tokenize, SentenceCountExtractor
 
 app = Flask(__name__)
 
-# load data
-try:
-    # heroku
-    engine = create_engine('sqlite:///./data/DisasterResponse.db')
-    df = pd.read_sql_table('labeled_messages', engine)
-except:
-    # local
-    engine = create_engine('sqlite:///../data/DisasterResponse.db')
-    df = pd.read_sql_table('labeled_messages', engine)
-
 # load model
-global model
-try:
-    # heroku
-    model = joblib.load("./models/classifier.pkl")
-except:
-    # local
-    model = joblib.load("../models/classifier.pkl")
+def decompress_pickle(file):
+    data = bz2.BZ2File(file, 'rb')
+    data = pickle.load(data)
+    return data
 
+global model
+model = decompress_pickle('./models/classifier.pkl')
+
+# load data
+engine = create_engine('sqlite:///./data/DisasterResponse.db')
+df = pd.read_sql_table('labeled_messages', engine)
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
