@@ -60,7 +60,9 @@ The main page shows three visualizations (plotly) on the training dataset, inclu
 	- *genres are direct, news & social*
 - Distribution of Message Genres
 
-![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/visualization_example.PNG)
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/visualization_example_1.png)
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/visualization_example_2.PNG)
+![](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/screenshots/visualization_example_3.png)
 
 In case new data becomes available for model training in the future in order to improve the classification performance, the ETL & ML pipelines can be executed as described under [Instructions](#instructions). 
 
