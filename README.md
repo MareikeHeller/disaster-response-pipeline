@@ -24,15 +24,16 @@ Execute the app in a Docker container via:
 
 ## Installation
 
-The code was developed using Python 3.6.3. Necessary packages beyond the Python Standard Library are:
+The code was initially developed using Python 3.6.3 and updated to 3.10.5. Necessary packages beyond the Python Standard Library are:
+- bz2file==0.98
 - Flask==0.12.5
 - gunicorn==19.10.0
-- joblib==1.0.0
+- joblib==1.2.0
 - nltk==3.2.5
-- numpy==1.19.5
-- pandas==0.23.3
-- plotly==2.0.15
-- scikit-learn==0.19.1
+- numpy==1.24.2
+- pandas==1.3.5
+- plotly==5.13.1
+- scikit-learn==1.2.2
 - SQLAlchemy==1.2.19
 
 The environment can be installed using [requirements.txt](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/requirements.txt).
