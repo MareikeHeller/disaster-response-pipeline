@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+    disaster-response-pipeline-image:
+        ports:
+            - '8000:8000'
+        container_name: disaster-response-pipeline
+        image: disaster-response-pipeline-image

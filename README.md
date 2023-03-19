@@ -1,8 +1,9 @@
 # Disaster Response Pipeline
 
-Heroku free plan was discontinued. Web app to be migrated to another hosting platform.
-
-_Find the web app: https://disaster-response-pipeline-mh.herokuapp.com/_
+Execute the app in a Docker container via:
+1. `docker build -t disaster-response-pipeline-image .`
+2. `docker compose up`
+3. go to http://localhost:8000/
 
 ## Table of Contents
 1. [Instructions](#instructions)
@@ -37,11 +38,7 @@ The code was developed using Python 3.6.3. Necessary packages beyond the Python 
 The environment can be installed using [requirements.txt](https://github.com/MareikeHeller/disaster-response-pipeline/blob/main/requirements.txt).
 
 ### Deployment
-The application is created using Flask and was deployed on Heroku. 
-
-Heroku free plan was discontinued. Web app to be migrated to another hosting platform.
-
-_You can access the app here: https://disaster-response-pipeline-mh.herokuapp.com/_ 
+The application is created using Flask and can be run in a Docker container.
 
 ## Objective
 This web app provides an interface for the automatic classification of disaster response messages into category labels.
@@ -104,13 +101,9 @@ In case new data becomes available for model training in the future in order to 
 	- *contains function "tokenize" and class "SentenceCountExtractor"*
     - *tokenize: Transforms text messages (documents) into normalized & lemmatized tokens*
     - *SentenceCountExtractor: Customized transformer based on whether a message contains one or multiple sentences. Used as a boolean feature in the ML model.*
-    - *was necessary to isolate from train_classifier.py & run.py for deployment with heroku*
     
-**Procfile**
-- *\[heroku\] app deployment*
-
-**nltk.txt**
-- *\[heroku\] contains a list of nltk corpora to be downloaded for model to classify messages*
+**Procfile & nltk.txt**
+- *legacy for Heroku deployment*
 
 **requirements.txt**
 -  *can be used to install the python environment*
